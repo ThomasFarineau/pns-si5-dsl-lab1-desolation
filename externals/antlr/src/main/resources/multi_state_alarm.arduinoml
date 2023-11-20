@@ -1,0 +1,23 @@
+application stateBasedAlarm
+
+# Declaring bricks
+sensor button: 9
+actuator buzzer: 11
+actuator led: 12
+
+# Declaring states
+buzzerOn {
+    buzzer <= HIGH
+    button is HIGH => ledOn
+}
+
+ledOn {
+    buzzer <= LOW
+    led <= HIGH
+    button is HIGH => off
+}
+
+-> off {
+    led <= LOW
+    button is HIGH => buzzerOn
+}
