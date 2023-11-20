@@ -1,0 +1,11 @@
+Very Simple Alarme Fonctionne ! 
+
+Dual Check Alarme ne Fonctionne Pas !
+Raison probable : Les Etats n'on le droit qu'à une seul transitions
+(ICI la dernière déclaré dans le code java)
+
+Multi State Alarme ne Fonctionne Pas ! 
+Cause : JSP
+
+State_Based_Alarme ne Fonctionne Pas !
+Cause : JSP

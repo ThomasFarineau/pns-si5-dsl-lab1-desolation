@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard-mini", "id": "bb1", "top": 85, "left": 141.6, "attrs": {} },
+    { "type": "wokwi-breadboard-mini", "id": "bb2", "top": -183.8, "left": 141.6, "attrs": {} },
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 29.4, "left": -288.6, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 121.2,
+      "left": 157.4,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 124.2,
+      "left": 204.6,
+      "rotate": 90,
+      "attrs": { "color": "green" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led3",
+      "top": -147.6,
+      "left": 157.4,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn2",
+      "top": -144.6,
+      "left": 204.6,
+      "rotate": 90,
+      "attrs": { "color": "green" }
+    }
+  ],
+  "connections": [
+    [ "uno:5V", "bb1:11t.a", "red", [ "v28.7", "h195.8", "v-240", "h182.4", "v48" ] ],
+    [ "uno:9", "bb1:11b.j", "green", [ "v-48", "h452", "v240", "h-76.8" ] ],
+    [ "uno:GND.2", "bb1:3b.j", "black", [ "v38.3", "h291.9" ] ],
+    [ "bb1:4b.j", "uno:12", "green", [ "v28.8", "h-153.6", "v-220.8", "h-182.9" ] ],
+    [ "bb1:3b.h", "btn1:2.r", "green", [ "v0" ] ],
+    [ "led1:A", "bb1:4b.f", "", [ "$bb" ] ],
+    [ "led1:C", "bb1:3b.f", "", [ "$bb" ] ],
+    [ "btn1:1.l", "bb1:11t.c", "", [ "$bb" ] ],
+    [ "btn1:2.l", "bb1:9t.c", "", [ "$bb" ] ],
+    [ "btn1:1.r", "bb1:11b.h", "", [ "$bb" ] ],
+    [ "btn1:2.r", "bb1:9b.h", "", [ "$bb" ] ],
+    [ "bb2:3b.h", "btn2:2.r", "green", [ "v0" ] ],
+    [ "bb2:3b.j", "uno:GND.1", "black", [ "h-345.6", "v105.6" ] ],
+    [ "led3:A", "bb2:4b.f", "", [ "$bb" ] ],
+    [ "led3:C", "bb2:3b.f", "", [ "$bb" ] ],
+    [ "uno:5V", "bb2:11t.a", "red", [ "v28.7", "h-188.2", "v-451", "h566.4" ] ],
+    [ "uno:11", "bb2:4b.j", "green", [ "v-86.4", "h327" ] ],
+    [ "uno:10", "bb2:11b.j", "green", [ "v-67.2", "h384.7" ] ],
+    [ "btn2:1.l", "bb2:11t.c", "", [ "$bb" ] ],
+    [ "btn2:2.l", "bb2:9t.c", "", [ "$bb" ] ],
+    [ "btn2:1.r", "bb2:11b.h", "", [ "$bb" ] ],
+    [ "btn2:2.r", "bb2:9b.h", "", [ "$bb" ] ]
+  ],
+  "dependencies": {}
+}

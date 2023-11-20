@@ -9,7 +9,7 @@ public class DualCheckAlarm{
     public static void main (String[] args) {
 
         App myApp =
-                application("state_based_alarm")
+                application("dual_check_alarm")
                         .uses(sensor("buttonOne", 9))
                         .uses(sensor("buttonTwo", 10))
                         .uses(actuator("buzzer", 11))
