@@ -24,3 +24,9 @@ mvn exec:java -Dexec.args="src/main/resources/multi_state_alarm.arduinoml" > ../
 
 # Exécuter le DSL pour le scénario 'State Based Alarm'
 mvn exec:java -Dexec.args="src/main/resources/state_based_alarm.arduinoml" > ../scenarios/state_based_alarm_output.txt
+
+mvn clean
+
+cd ../kernels/jvm
+
+mvn clean
