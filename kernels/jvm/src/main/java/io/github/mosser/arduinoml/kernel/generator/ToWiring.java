@@ -98,7 +98,10 @@ public class ToWiring extends Visitor<StringBuffer> {
 			}
 
 			if (state.getTransition() != null) {
-				state.getTransition().accept(this);
+
+				for (Transition s : state.getTransition()){
+					s.accept(this);
+				}
 				w("\t\tbreak;\n");
 			}
 			return;
