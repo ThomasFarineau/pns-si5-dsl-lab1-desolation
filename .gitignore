@@ -9,5 +9,3 @@ embeddeds/haskell/dist
 .idea/
 
 *.iml
-
-externals/scenarios/
