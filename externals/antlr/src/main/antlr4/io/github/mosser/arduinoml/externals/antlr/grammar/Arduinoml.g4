@@ -18,6 +18,7 @@ states          :   state+;
     state       :   initial? name=IDENTIFIER '{'  action+ transition+ '}';
     action      :   receiver=IDENTIFIER '<=' value=SIGNAL;
     transition  :   trigger=IDENTIFIER 'is' value=SIGNAL '=>' next=IDENTIFIER ;
+    delay       :   'delay' time=INT 'ms' '=>' next=IDENTIFIER;
     initial     :   '->';
 
 /*****************

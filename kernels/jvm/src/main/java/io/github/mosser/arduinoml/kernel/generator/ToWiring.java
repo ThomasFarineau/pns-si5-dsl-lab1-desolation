@@ -138,4 +138,15 @@ public class ToWiring extends Visitor<StringBuffer> {
 		}
 	}
 
+	@Override
+	public void visit(Delayer delayer) {
+		if(context.get("pass") == PASS.ONE) {
+			return;
+		}
+		if(context.get("pass") == PASS.TWO) {
+			w(String.format("\t\t\tdelay(%d);\n", delayer.getDuration()));
+			return;
+		}
+	}
+
 }
