@@ -12,6 +12,7 @@ public class State implements NamedElement, Visitable {
 	private String name;
 	private List<Action> actions = new ArrayList<Action>();
 	private List<Transition> transition = new ArrayList<Transition>();
+	private Delayer delayer;
 
 	@Override
 	public String getName() {
@@ -37,6 +38,14 @@ public class State implements NamedElement, Visitable {
 
 	public void setTransition(Transition transition) {
 		this.transition.add(transition);
+	}
+
+	public Delayer getDelayer() {
+		return delayer;
+	}
+
+	public void setDelayer(Delayer delayer) {
+		this.delayer = delayer;
 	}
 
 	@Override
