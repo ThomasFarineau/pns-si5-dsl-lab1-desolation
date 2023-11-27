@@ -9,16 +9,16 @@ actuator led: 12
 
 alarmBlinkOn {
     led <= HIGH
-    delay 1000 ms => alarmBlinkOff
     buttonOne is LOW => buttonTwoPressed
     buttonTwo is LOW => buttonOnePressed
+    delay 1000 ms => alarmBlinkOff
 }
 
 alarmBlinkOff {
     led <= LOW
-    delay 1000 ms => alarmBlinkOn
     buttonOne is LOW => buttonTwoPressed
     buttonTwo is LOW => buttonOnePressed
+    delay 1000 ms => alarmBlinkOff
 }
 
 buttonTwoPressed {
