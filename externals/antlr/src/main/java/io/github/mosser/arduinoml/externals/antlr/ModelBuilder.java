@@ -152,7 +152,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
     }
 
     @Override
-    public void enterDelayer(ArduinomlParser.DelayerContext ctx) {
+    public void enterDelay(ArduinomlParser.DelayContext ctx) {
         BindingDelayer toBeResolvedLater = new BindingDelayer();
         toBeResolvedLater.to = ctx.next.getText();
         toBeResolvedLater.duration = Integer.parseInt(ctx.duration.getText());
