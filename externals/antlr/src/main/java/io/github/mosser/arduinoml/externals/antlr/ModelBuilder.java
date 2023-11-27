@@ -1,10 +1,9 @@
 package io.github.mosser.arduinoml.externals.antlr;
 
 import io.github.mosser.arduinoml.externals.antlr.grammar.*;
-
-
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.Action;
+import io.github.mosser.arduinoml.kernel.behavioral.Delayer;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.behavioral.Transition;
 import io.github.mosser.arduinoml.kernel.structural.Actuator;
@@ -24,7 +23,9 @@ public class ModelBuilder extends ArduinomlBaseListener {
     private boolean built = false;
 
     public App retrieve() {
-        if (built) { return theApp; }
+        if (built) {
+            return theApp;
+        }
         throw new RuntimeException("Cannot retrieve a model that was not created!");
     }
 
@@ -32,15 +33,21 @@ public class ModelBuilder extends ArduinomlBaseListener {
      ** Symbol tables **
      *******************/
 
-    private Map<String, Sensor>   sensors   = new HashMap<>();
+    private Map<String, Sensor> sensors = new HashMap<>();
     private Map<String, Actuator> actuators = new HashMap<>();
-    private Map<String, State>    states  = new HashMap<>();
-    private Map<Identifier, Binding>  bindings  = new HashMap<>();
+    private Map<String, State> states = new HashMap<>();
+    private Map<Identifier, Binding> bindings = new HashMap<>();
+    private Map<String, BindingDelayer> delayers = new HashMap<>();
 
     private class Binding { // used to support state resolution for transitions
         String to; // name of the next state, as its instance might not have been compiled yet
         Sensor trigger;
         SIGNAL value;
+    }
+
+    private class BindingDelayer { // used to support state resolution for transitions
+        String to; // name of the next state, as its instance might not have been compiled yet
+        int duration;
     }
 
     private class Identifier { // used to support state resolution for transitions
@@ -66,14 +73,21 @@ public class ModelBuilder extends ArduinomlBaseListener {
         theApp = new App();
     }
 
-    @Override public void exitRoot(ArduinomlParser.RootContext ctx) {
+    @Override
+    public void exitRoot(ArduinomlParser.RootContext ctx) {
         // Resolving states in transitions
-        bindings.forEach((key, binding) ->  {
+        bindings.forEach((key, binding) -> {
             Transition t = new Transition();
             t.setSensor(binding.trigger);
             t.setValue(binding.value);
             t.setNext(states.get(binding.to));
             states.get(key.name).setTransition(t);
+        });
+        delayers.forEach((key, delayer) -> {
+            Delayer d = new Delayer();
+            d.setDuration(delayer.duration);
+            d.setNext(states.get(delayer.to));
+            states.get(key).setDelayer(d);
         });
         this.built = true;
     }
@@ -127,14 +141,23 @@ public class ModelBuilder extends ArduinomlBaseListener {
     public void enterTransition(ArduinomlParser.TransitionContext ctx) {
         // Creating a placeholder as the next state might not have been compiled yet.
         Binding toBeResolvedLater = new Binding();
-        
-        toBeResolvedLater.to      = ctx.next.getText();
-        toBeResolvedLater.trigger = sensors.get(ctx.trigger.getText());
-        toBeResolvedLater.value   = SIGNAL.valueOf(ctx.value.getText());
-        
-        Identifier key = new Identifier(currentState.getName(),toBeResolvedLater.value);
 
-        bindings.put(key , toBeResolvedLater);
+        toBeResolvedLater.to = ctx.next.getText();
+        toBeResolvedLater.trigger = sensors.get(ctx.trigger.getText());
+        toBeResolvedLater.value = SIGNAL.valueOf(ctx.value.getText());
+
+        Identifier key = new Identifier(currentState.getName(), toBeResolvedLater.value);
+
+        bindings.put(key, toBeResolvedLater);
+    }
+
+    @Override
+    public void enterDelayer(ArduinomlParser.DelayerContext ctx) {
+        BindingDelayer toBeResolvedLater = new BindingDelayer();
+        toBeResolvedLater.to = ctx.next.getText();
+        toBeResolvedLater.duration = Integer.parseInt(ctx.duration.getText());
+
+        this.delayers.put(currentState.getName(), toBeResolvedLater);
     }
 
     @Override
