@@ -35,12 +35,23 @@ public class ModelBuilder extends ArduinomlBaseListener {
     private Map<String, Sensor>   sensors   = new HashMap<>();
     private Map<String, Actuator> actuators = new HashMap<>();
     private Map<String, State>    states  = new HashMap<>();
-    private Map<String, Binding>  bindings  = new HashMap<>();
+    private Map<Identifier, Binding>  bindings  = new HashMap<>();
 
     private class Binding { // used to support state resolution for transitions
         String to; // name of the next state, as its instance might not have been compiled yet
         Sensor trigger;
         SIGNAL value;
+    }
+
+    private class Identifier { // used to support state resolution for transitions
+        String name;
+        SIGNAL value;
+
+        Identifier(String name, SIGNAL value) {
+            this.name = name;
+            this.value = value;
+        }
+
     }
 
     private State currentState = null;
@@ -62,7 +73,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
             t.setSensor(binding.trigger);
             t.setValue(binding.value);
             t.setNext(states.get(binding.to));
-            states.get(key).setTransition(t);
+            states.get(key.name).setTransition(t);
         });
         this.built = true;
     }
@@ -116,10 +127,14 @@ public class ModelBuilder extends ArduinomlBaseListener {
     public void enterTransition(ArduinomlParser.TransitionContext ctx) {
         // Creating a placeholder as the next state might not have been compiled yet.
         Binding toBeResolvedLater = new Binding();
+        
         toBeResolvedLater.to      = ctx.next.getText();
         toBeResolvedLater.trigger = sensors.get(ctx.trigger.getText());
         toBeResolvedLater.value   = SIGNAL.valueOf(ctx.value.getText());
-        bindings.put(currentState.getName(), toBeResolvedLater);
+        
+        Identifier key = new Identifier(currentState.getName(),toBeResolvedLater.value);
+
+        bindings.put(key , toBeResolvedLater);
     }
 
     @Override
