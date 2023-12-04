@@ -1,17 +1,18 @@
 package io.github.mosser.arduinoml.externals.antlr;
 
 import io.github.mosser.arduinoml.externals.antlr.grammar.*;
-
-
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.Action;
+import io.github.mosser.arduinoml.kernel.behavioral.Condition;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.behavioral.Transition;
 import io.github.mosser.arduinoml.kernel.structural.Actuator;
 import io.github.mosser.arduinoml.kernel.structural.SIGNAL;
 import io.github.mosser.arduinoml.kernel.structural.Sensor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ModelBuilder extends ArduinomlBaseListener {
@@ -35,23 +36,14 @@ public class ModelBuilder extends ArduinomlBaseListener {
     private Map<String, Sensor>   sensors   = new HashMap<>();
     private Map<String, Actuator> actuators = new HashMap<>();
     private Map<String, State>    states  = new HashMap<>();
-    private Map<Identifier, Binding>  bindings  = new HashMap<>();
+    private Map<String, List<Binding>>  bindings  = new HashMap<>(); //Transitions
+    private Map<Binding, List<Condition>> conditionsMap = new HashMap<>();
 
-    private class Binding { // used to support state resolution for transitions
-        String to; // name of the next state, as its instance might not have been compiled yet
-        Sensor trigger;
-        SIGNAL value;
-    }
+    private int bindingNumber = 0;
 
-    private class Identifier { // used to support state resolution for transitions
-        String name;
-        SIGNAL value;
-
-        Identifier(String name, SIGNAL value) {
-            this.name = name;
-            this.value = value;
-        }
-
+    private class Binding {
+        public String to;
+        public List<Condition> trigger;       
     }
 
     private State currentState = null;
@@ -69,11 +61,14 @@ public class ModelBuilder extends ArduinomlBaseListener {
     @Override public void exitRoot(ArduinomlParser.RootContext ctx) {
         // Resolving states in transitions
         bindings.forEach((key, binding) ->  {
-            Transition t = new Transition();
-            t.setSensor(binding.trigger);
-            t.setValue(binding.value);
-            t.setNext(states.get(binding.to));
-            states.get(key.name).setTransition(t);
+
+            binding.forEach((b) -> {
+                
+                Transition t = new Transition();
+                t.setCondition(b.trigger);
+                t.setNext(states.get(b.to));
+                states.get(key).setTransition(t);
+            });
         });
         this.built = true;
     }
@@ -124,17 +119,43 @@ public class ModelBuilder extends ArduinomlBaseListener {
     }
 
     @Override
-    public void enterTransition(ArduinomlParser.TransitionContext ctx) {
-        // Creating a placeholder as the next state might not have been compiled yet.
-        Binding toBeResolvedLater = new Binding();
-        
-        toBeResolvedLater.to      = ctx.next.getText();
-        toBeResolvedLater.trigger = sensors.get(ctx.trigger.getText());
-        toBeResolvedLater.value   = SIGNAL.valueOf(ctx.value.getText());
-        
-        Identifier key = new Identifier(currentState.getName(),toBeResolvedLater.value);
+    public void exitTransition(ArduinomlParser.TransitionContext ctx) {
+        bindingNumber++;
+    }
 
-        bindings.put(key , toBeResolvedLater);
+    public void enterTransition(ArduinomlParser.TransitionContext ctx) {
+        List<Binding> bindingsList = bindings.get(currentState.getName());
+        if (bindingsList == null) {
+            bindingsList = new ArrayList<>();
+            bindingNumber = 0;
+        }
+        Binding binding = new Binding();
+        binding.to = ctx.next.getText();
+        binding.trigger = null; 
+        bindingsList.add(binding);
+        bindings.put(currentState.getName(), bindingsList);
+    }
+
+    @Override
+    public void enterCondition(ArduinomlParser.ConditionContext ctx) {
+        Condition condition = new Condition();
+
+        List<Binding> bindingsList = bindings.get(currentState.getName());
+        Binding binding = bindingsList.get(bindingNumber);
+
+        List<Condition> conditions = conditionsMap.get(binding);
+        if (conditions == null) {
+            conditions = new ArrayList<>();
+        }
+        condition.setSensor(sensors.get(ctx.trigger.getText()));
+        condition.setValue(SIGNAL.valueOf(ctx.value.getText()));
+        conditions.add(condition);
+
+        binding.trigger = conditions;
+        bindingsList.set(bindingNumber, binding);
+        bindings.put(currentState.getName(), bindingsList);
+
+        conditionsMap.put(binding, conditions);
     }
 
     @Override

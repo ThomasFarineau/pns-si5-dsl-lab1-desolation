@@ -4,11 +4,12 @@ import io.github.mosser.arduinoml.kernel.generator.Visitable;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.*;
 
+import java.util.List;
+
 public class Transition implements Visitable {
 
 	private State next;
-	private Sensor sensor;
-	private SIGNAL value;
+	private List<Condition> condition;
 
 
 	public State getNext() {
@@ -19,24 +20,16 @@ public class Transition implements Visitable {
 		this.next = next;
 	}
 
-	public Sensor getSensor() {
-		return sensor;
+	public List<Condition> getCondition() {
+		return condition;
 	}
 
-	public void setSensor(Sensor sensor) {
-		this.sensor = sensor;
+	public void setCondition(List<Condition> condition) {
+		this.condition = condition;
 	}
 
-	public SIGNAL getValue() {
-		return value;
-	}
-
-	public void setValue(SIGNAL value) {
-		this.value = value;
-	}
-
-	public String toString() {
-		return "Transition [next=" + next + ", sensor=" + sensor + ", value=" + value + "]";
+	public void addCondition(Condition condition) {
+		this.condition.add(condition);
 	}
 
 	@Override
