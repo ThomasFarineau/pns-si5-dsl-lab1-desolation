@@ -17,3 +17,5 @@ from "buttonTwoOn" to "on" when "buttonOne" becomes "high"
 from "buttonTwoOn" to "off" when "buttonTwo" becomes "low"
 from "on" to "buttonTwoOn" when "buttonOne" becomes "low"
 from "on" to "buttonOneOn" when "buttonTwo" becomes "low"
+
+export "Dual check alarm!"
