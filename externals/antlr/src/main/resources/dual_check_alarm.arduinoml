@@ -8,24 +8,10 @@ actuator buzzer: 11
 # Declaring states
 on {
     buzzer <= HIGH
-    buttonOne is LOW => buttonTwoPressed
-    buttonTwo is LOW => buttonOnePressed
-}
-
-buttonOnePressed {
-    buzzer <= LOW
-    buttonTwo is HIGH => on
-    buttonOne is LOW => off
-}
-
-buttonTwoPressed {
-    buzzer <= LOW
-    buttonOne is HIGH => on
-    buttonTwo is LOW => off
+    buttonOne is LOW or buttonTwo is LOW => off
 }
 
 -> off {
     buzzer <= LOW
-    buttonOne is HIGH => buttonOnePressed
-    buttonTwo is HIGH => buttonTwoPressed
+    buttonOne is HIGH and buttonTwo is HIGH => on
 }
