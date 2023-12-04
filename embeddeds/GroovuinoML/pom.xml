@@ -12,8 +12,8 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<encoding>UTF-8</encoding>
-		<groovy.version>2.3.10</groovy.version>
-		<groovy.version.short>2.3</groovy.version.short>
+		<groovy.version>3.0.19</groovy.version>
+		<groovy.version.short>3.0</groovy.version.short>
 	</properties>
 
 	<dependencies>
@@ -22,10 +22,12 @@
 			<artifactId>kernel-jvm</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.codehaus.groovy/groovy-all -->
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>${groovy.version}</version>
+			<version>3.0.19</version>
+			<type>pom</type>
 		</dependency>
 	</dependencies>
 	<build>
@@ -34,7 +36,7 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<!-- 2.8.0-01 and later require maven-compiler-plugin 3.1 or higher -->
-				<version>3.1</version>
+				<version>3.11.0</version>
 				<configuration>
 					<compilerId>groovy-eclipse-compiler</compilerId>
 				</configuration>
@@ -42,14 +44,14 @@
 					<dependency>
 						<groupId>org.codehaus.groovy</groupId>
 						<artifactId>groovy-eclipse-compiler</artifactId>
-						<version>2.9.1-01</version>
+						<version>3.7.0</version>
 					</dependency>
 					<!-- for 2.8.0-01 and later you must have an explicit dependency on 
 						groovy-eclipse-batch -->
 					<dependency>
 						<groupId>org.codehaus.groovy</groupId>
 						<artifactId>groovy-eclipse-batch</artifactId>
-						<version>2.3.7-01</version>
+						<version>3.0.8-01</version>
 					</dependency>
 				</dependencies>
 			</plugin>
