@@ -10,6 +10,7 @@ public class Transition implements Visitable {
 
 	private State next;
 	private List<Condition> condition;
+	private List<OPERATOR> opList;
 
 
 	public State getNext() {
@@ -31,6 +32,19 @@ public class Transition implements Visitable {
 	public void addCondition(Condition condition) {
 		this.condition.add(condition);
 	}
+
+	public List<OPERATOR> getOpList() {
+		return opList;
+	}
+
+	public void setOpList(List<OPERATOR> opList) {
+		this.opList = opList;
+	}
+
+	public void addOp(OPERATOR op) {
+		this.opList.add(op);
+	}
+	
 
 	@Override
 	public void accept(Visitor visitor) {

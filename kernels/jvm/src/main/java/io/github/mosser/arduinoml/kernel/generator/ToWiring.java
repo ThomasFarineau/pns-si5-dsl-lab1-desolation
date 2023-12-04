@@ -137,7 +137,12 @@ public class ToWiring extends Visitor<StringBuffer> {
 			w(String.format("\t\t\tif("));
 			for (Condition condition : conditions) {
 				if (conditions.indexOf(condition) != 0) {
-					w(" && ");
+					if(transition.getOpList().get(conditions.indexOf(condition)-1) == OPERATOR.and){
+						w(" && ");
+					}
+					else{
+						w(" || ");
+					}
 				}
 				visit(condition);
 

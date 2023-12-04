@@ -7,6 +7,7 @@ import io.github.mosser.arduinoml.kernel.behavioral.Condition;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.behavioral.Transition;
 import io.github.mosser.arduinoml.kernel.structural.Actuator;
+import io.github.mosser.arduinoml.kernel.structural.OPERATOR;
 import io.github.mosser.arduinoml.kernel.structural.SIGNAL;
 import io.github.mosser.arduinoml.kernel.structural.Sensor;
 
@@ -44,6 +45,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
     private class Binding {
         public String to;
         public List<Condition> trigger;       
+        public List<OPERATOR> opList;
     }
 
     private State currentState = null;
@@ -67,6 +69,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
                 Transition t = new Transition();
                 t.setCondition(b.trigger);
                 t.setNext(states.get(b.to));
+                t.setOpList(b.opList);
                 states.get(key).setTransition(t);
             });
         });
@@ -124,6 +127,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
     }
 
     public void enterTransition(ArduinomlParser.TransitionContext ctx) {
+        
         List<Binding> bindingsList = bindings.get(currentState.getName());
         if (bindingsList == null) {
             bindingsList = new ArrayList<>();
@@ -132,6 +136,9 @@ public class ModelBuilder extends ArduinomlBaseListener {
         Binding binding = new Binding();
         binding.to = ctx.next.getText();
         binding.trigger = null; 
+        OPERATOR x = ctx.type.getText().equals("and") ? OPERATOR.and : OPERATOR.or;
+        binding.opList = new ArrayList<>();
+        binding.opList.add(x);
         bindingsList.add(binding);
         bindings.put(currentState.getName(), bindingsList);
     }
