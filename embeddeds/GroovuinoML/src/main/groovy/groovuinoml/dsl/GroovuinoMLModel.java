@@ -5,6 +5,7 @@ import java.util.*;
 import groovy.lang.Binding;
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.Action;
+import io.github.mosser.arduinoml.kernel.behavioral.Delayer;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.behavioral.Transition;
 import io.github.mosser.arduinoml.kernel.generator.ToWiring;
@@ -58,6 +59,13 @@ public class GroovuinoMLModel {
 		transition.setSensor(sensor);
 		transition.setValue(value);
 		from.setTransition(transition);
+	}
+
+	public void createDelayer(State from, State to, Integer delay){
+		Delayer delayer = new Delayer();
+		delayer.setDuration(delay);
+		delayer.setNext(to);
+		from.setDelayer(delayer);
 	}
 	
 	public void setInitialState(State state) {

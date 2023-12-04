@@ -46,11 +46,26 @@ abstract class GroovuinoMLBasescript extends Script {
         [to: { state2 ->
             [when: { sensor ->
                 [becomes: { signal ->
-                    ((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createTransition(state1 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state1) : (State) state1,
+                    ((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createTransition(
+                            state1 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state1) : (State) state1,
                             state2 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state2) : (State) state2,
                             sensor instanceof String ? (Sensor) ((GroovuinoMLBinding) this.getBinding()).getVariable(sensor) : (Sensor) sensor,
-                            signal instanceof String ? (SIGNAL) ((GroovuinoMLBinding) this.getBinding()).getVariable(signal) : (SIGNAL) signal)
+                            signal instanceof String ? (SIGNAL) ((GroovuinoMLBinding) this.getBinding()).getVariable(signal) : (SIGNAL) signal
+                    )
                 }]
+            }]
+        }]
+    }
+
+    // delay n from state1 to state2
+    def delay(n) {
+        [from: { state1 ->
+            [to: { state2 ->
+                ((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createDelayer(
+                        state1 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state1) : (State) state1,
+                        state2 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state2) : (State) state2,
+                        n
+                )
             }]
         }]
     }
