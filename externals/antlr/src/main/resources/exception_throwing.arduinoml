@@ -1,0 +1,25 @@
+application exceptionThrowing
+
+# Declaring bricks
+sensor buttonOne: 8
+sensor buttonTwo: 9
+actuator led: 12
+
+# Declaring states
+
+alarmBlinkOn {
+    led <= HIGH
+    buttonOne is LOW or buttonTwo is LOW => off
+    delay 1000 ms => alarmBlinkOff
+}
+
+alarmBlinkOff {
+    led <= LOW
+    buttonOne is LOW or buttonTwo is LOW => off
+    delay 1000 ms => alarmBlinkOn
+}
+
+-> off {
+    led <= LOW
+    buttonOne is HIGH and buttonTwo is HIGH => alarmBlinkOn
+}
