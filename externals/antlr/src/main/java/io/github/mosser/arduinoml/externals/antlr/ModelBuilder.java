@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
+
 public class ModelBuilder extends ArduinomlBaseListener {
 
     /********************
@@ -136,9 +138,13 @@ public class ModelBuilder extends ArduinomlBaseListener {
         Binding binding = new Binding();
         binding.to = ctx.next.getText();
         binding.trigger = null; 
-        OPERATOR x = ctx.type.getText().equals("and") ? OPERATOR.and : OPERATOR.or;
         binding.opList = new ArrayList<>();
-        binding.opList.add(x);
+
+        List<TerminalNode> test = ctx.CONDITION_TYPE();
+        for (TerminalNode t : test) {
+            binding.opList.add(OPERATOR.valueOf(t.getText()));
+        }
+        
         bindingsList.add(binding);
         bindings.put(currentState.getName(), bindingsList);
     }
