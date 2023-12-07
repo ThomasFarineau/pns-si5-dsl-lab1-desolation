@@ -3,15 +3,21 @@ package io.github.mosser.arduinoml.externals.antlr;
 import io.github.mosser.arduinoml.externals.antlr.grammar.*;
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.Action;
+import io.github.mosser.arduinoml.kernel.behavioral.Condition;
 import io.github.mosser.arduinoml.kernel.behavioral.Delayer;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.behavioral.Transition;
 import io.github.mosser.arduinoml.kernel.structural.Actuator;
+import io.github.mosser.arduinoml.kernel.structural.OPERATOR;
 import io.github.mosser.arduinoml.kernel.structural.SIGNAL;
 import io.github.mosser.arduinoml.kernel.structural.Sensor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class ModelBuilder extends ArduinomlBaseListener {
 
@@ -35,16 +41,18 @@ public class ModelBuilder extends ArduinomlBaseListener {
 
     private Map<String, Sensor> sensors = new HashMap<>();
     private Map<String, Actuator> actuators = new HashMap<>();
-    private Map<String, State> states = new HashMap<>();
-    private Map<Identifier, Binding> bindings = new HashMap<>();
-    private Map<String, BindingDelayer> delayers = new HashMap<>();
+    private Map<String, State>    states  = new HashMap<>();
+    private Map<String, List<Binding>>  bindings  = new HashMap<>(); //Transitions
+    private Map<Binding, List<Condition>> conditionsMap = new HashMap<>();
 
-    private class Binding { // used to support state resolution for transitions
-        String to; // name of the next state, as its instance might not have been compiled yet
-        Sensor trigger;
-        SIGNAL value;
+    private int bindingNumber = 0;
+
+    private class Binding {
+        public String to;
+        public List<Condition> trigger;       
+        public List<OPERATOR> opList;
     }
-
+    
     private class BindingDelayer { // used to support state resolution for transitions
         String to; // name of the next state, as its instance might not have been compiled yet
         int duration;
@@ -76,12 +84,16 @@ public class ModelBuilder extends ArduinomlBaseListener {
     @Override
     public void exitRoot(ArduinomlParser.RootContext ctx) {
         // Resolving states in transitions
-        bindings.forEach((key, binding) -> {
-            Transition t = new Transition();
-            t.setSensor(binding.trigger);
-            t.setValue(binding.value);
-            t.setNext(states.get(binding.to));
-            states.get(key.name).setTransition(t);
+        bindings.forEach((key, binding) ->  {
+
+            binding.forEach((b) -> {
+                
+                Transition t = new Transition();
+                t.setCondition(b.trigger);
+                t.setNext(states.get(b.to));
+                t.setOpList(b.opList);
+                states.get(key).setTransition(t);
+            });
         });
         delayers.forEach((key, delayer) -> {
             Delayer d = new Delayer();
@@ -138,17 +150,51 @@ public class ModelBuilder extends ArduinomlBaseListener {
     }
 
     @Override
+    public void exitTransition(ArduinomlParser.TransitionContext ctx) {
+        bindingNumber++;
+    }
+
     public void enterTransition(ArduinomlParser.TransitionContext ctx) {
-        // Creating a placeholder as the next state might not have been compiled yet.
-        Binding toBeResolvedLater = new Binding();
+        
+        List<Binding> bindingsList = bindings.get(currentState.getName());
+        if (bindingsList == null) {
+            bindingsList = new ArrayList<>();
+            bindingNumber = 0;
+        }
+        Binding binding = new Binding();
+        binding.to = ctx.next.getText();
+        binding.trigger = null; 
+        binding.opList = new ArrayList<>();
 
-        toBeResolvedLater.to = ctx.next.getText();
-        toBeResolvedLater.trigger = sensors.get(ctx.trigger.getText());
-        toBeResolvedLater.value = SIGNAL.valueOf(ctx.value.getText());
+        List<TerminalNode> test = ctx.CONDITION_TYPE();
+        for (TerminalNode t : test) {
+            binding.opList.add(OPERATOR.valueOf(t.getText()));
+        }
+        
+        bindingsList.add(binding);
+        bindings.put(currentState.getName(), bindingsList);
+    }
 
-        Identifier key = new Identifier(currentState.getName(), toBeResolvedLater.value);
+    @Override
+    public void enterCondition(ArduinomlParser.ConditionContext ctx) {
+        Condition condition = new Condition();
 
-        bindings.put(key, toBeResolvedLater);
+        List<Binding> bindingsList = bindings.get(currentState.getName());
+        Binding binding = bindingsList.get(bindingNumber);
+
+        List<Condition> conditions = conditionsMap.get(binding);
+        if (conditions == null) {
+            conditions = new ArrayList<>();
+        }
+        condition.setSensor(sensors.get(ctx.trigger.getText()));
+        condition.setValue(SIGNAL.valueOf(ctx.value.getText()));
+        conditions.add(condition);
+
+        binding.trigger = conditions;
+        bindingsList.set(bindingNumber, binding);
+        bindings.put(currentState.getName(), bindingsList);
+
+        conditionsMap.put(binding, conditions);
     }
 
     @Override
