@@ -44,6 +44,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
     private Map<String, State>    states  = new HashMap<>();
     private Map<String, List<Binding>>  bindings  = new HashMap<>(); //Transitions
     private Map<Binding, List<Condition>> conditionsMap = new HashMap<>();
+    private Map<String, BindingDelayer> delayers = new HashMap<>(); //Delayers
 
     private int bindingNumber = 0;
 
@@ -93,14 +94,17 @@ public class ModelBuilder extends ArduinomlBaseListener {
                 t.setNext(states.get(b.to));
                 t.setOpList(b.opList);
                 states.get(key).setTransition(t);
+                
             });
         });
+
         delayers.forEach((key, delayer) -> {
             Delayer d = new Delayer();
             d.setDuration(delayer.duration);
             d.setNext(states.get(delayer.to));
             states.get(key).setDelayer(d);
         });
+
         this.built = true;
     }
 
@@ -201,8 +205,7 @@ public class ModelBuilder extends ArduinomlBaseListener {
     public void enterDelay(ArduinomlParser.DelayContext ctx) {
         BindingDelayer toBeResolvedLater = new BindingDelayer();
         toBeResolvedLater.to = ctx.next.getText();
-        toBeResolvedLater.duration = Integer.parseInt(ctx.duration.getText());
-
+        toBeResolvedLater.duration = Integer.parseInt(ctx.time.getText());
         this.delayers.put(currentState.getName(), toBeResolvedLater);
     }
 

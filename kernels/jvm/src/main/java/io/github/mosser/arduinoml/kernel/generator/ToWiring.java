@@ -7,9 +7,11 @@ import io.github.mosser.arduinoml.kernel.behavioral.Action;
 import io.github.mosser.arduinoml.kernel.behavioral.Delayer;
 import io.github.mosser.arduinoml.kernel.behavioral.State;
 import io.github.mosser.arduinoml.kernel.behavioral.Transition;
+import io.github.mosser.arduinoml.kernel.behavioral.Condition;
 import io.github.mosser.arduinoml.kernel.structural.Actuator;
 import io.github.mosser.arduinoml.kernel.structural.Brick;
 import io.github.mosser.arduinoml.kernel.structural.Sensor;
+import io.github.mosser.arduinoml.kernel.structural.OPERATOR;
 
 /**
  * Quick and dirty visitor to support the generation of Wiring code
@@ -103,27 +105,21 @@ public class ToWiring extends Visitor<StringBuffer> {
             for (Action action : state.getActions()) {
                 action.accept(this);
             }
-
-            if (state.getTransition() != null) {
-                for (Transition s : state.getTransition()) {
-                    s.accept(this);
-                }
-            }
+            
             if (state.getDelayer() != null) {
                 state.getDelayer().accept(this);
             }
 
-				for (Transition s : state.getTransition()){
-					s.accept(this);
-					w("\t\t\t\tbreak;\n");
-					w("\t\t\t}\n");
-				}
-			}
-			return;
-		}
-
-	}
+            for (Transition s : state.getTransition()){
+                s.accept(this);
+                w("\t\t\t\tbreak;\n");
+                w("\t\t\t}\n");
+            }
+        }
+        return;
+    }
 	
+
 	@Override
 	public void visit(Condition condition) {
 		if(context.get("pass") == PASS.ONE) {
