@@ -4,13 +4,14 @@ import io.github.mosser.arduinoml.kernel.generator.Visitable;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
 import io.github.mosser.arduinoml.kernel.structural.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Transition implements Visitable {
 
 	private State next;
-	private List<Condition> condition;
-	private List<OPERATOR> opList;
+	private List<Condition> condition = new ArrayList<>();
+	private List<OPERATOR> opList = new ArrayList<>();
 
 
 	public State getNext() {
