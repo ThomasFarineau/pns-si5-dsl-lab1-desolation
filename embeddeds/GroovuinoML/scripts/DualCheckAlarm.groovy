@@ -9,13 +9,7 @@ state "buttonTwoOn" means "led" becomes "low"
 
 initial "off"
 
-from "off" to "buttonOneOn" when "buttonOne" becomes "high"
-from "off" to "buttonTwoOn" when "buttonTwo" becomes "high"
-from "buttonOneOn" to "on" when "buttonTwo" becomes "high"
-from "buttonOneOn" to "off" when "buttonOne" becomes "low"
-from "buttonTwoOn" to "on" when "buttonOne" becomes "high"
-from "buttonTwoOn" to "off" when "buttonTwo" becomes "low"
-from "on" to "buttonTwoOn" when "buttonOne" becomes "low"
-from "on" to "buttonOneOn" when "buttonTwo" becomes "low"
+from "on" to "off" when "buttonOne" becomes "low" and "buttonTwo" becomes "low"
+from "off" to "on" when "buttonOne" becomes "high" or "buttonTwo" becomes "high"
 
 export "Dual check alarm!"

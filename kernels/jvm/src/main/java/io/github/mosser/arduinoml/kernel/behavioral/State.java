@@ -36,7 +36,7 @@ public class State implements NamedElement, Visitable {
 		return transition;
 	}
 
-	public void setTransition(Transition transition) {
+	public void addTransition(Transition transition) {
 		this.transition.add(transition);
 	}
 

@@ -14,7 +14,7 @@ public class TransitionBuilder {
     TransitionBuilder(TransitionTableBuilder parent, String source) {
         this.parent = parent;
         this.local = new Transition();
-        parent.findState(source).setTransition(local);
+        parent.findState(source).addTransition(local);
     }
 
 

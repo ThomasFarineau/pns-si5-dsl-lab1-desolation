@@ -126,7 +126,7 @@ public class ToWiring extends Visitor<StringBuffer> {
 			return;
 		}
 		if(context.get("pass") == PASS.TWO) {
-			w(String.format(" digitalRead(%d) == %s && %sBounceGuard",condition.getSensor().getPin(),condition.getValue(),condition.getSensor().getName()));
+			w(String.format(" (digitalRead(%d) == %s && %sBounceGuard)",condition.getSensor().getPin(),condition.getValue(),condition.getSensor().getName()));
 			return;
 		}
 	}

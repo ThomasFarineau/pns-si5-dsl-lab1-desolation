@@ -3,6 +3,7 @@ package groovuinoml.dsl
 import io.github.mosser.arduinoml.kernel.behavioral.Action
 import io.github.mosser.arduinoml.kernel.behavioral.State
 import io.github.mosser.arduinoml.kernel.structural.Actuator
+import io.github.mosser.arduinoml.kernel.structural.OPERATOR
 import io.github.mosser.arduinoml.kernel.structural.SIGNAL
 import io.github.mosser.arduinoml.kernel.structural.Sensor
 
@@ -50,8 +51,40 @@ abstract class GroovuinoMLBasescript extends Script {
                             state1 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state1) : (State) state1,
                             state2 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state2) : (State) state2,
                             sensor instanceof String ? (Sensor) ((GroovuinoMLBinding) this.getBinding()).getVariable(sensor) : (Sensor) sensor,
-                            signal instanceof String ? (SIGNAL) ((GroovuinoMLBinding) this.getBinding()).getVariable(signal) : (SIGNAL) signal
+                            signal instanceof String ? (SIGNAL) ((GroovuinoMLBinding) this.getBinding()).getVariable(signal) : (SIGNAL) signal,
+                            null
                     )
+                    def andCondition
+                    def orCondition
+                    andCondition = { sensor2 ->
+                        [becomes: { signal2 ->
+                            ((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createTransition(
+                                state1 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state1) : (State) state1,
+                                state2 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state2) : (State) state2,
+                                sensor2 instanceof String ? (Sensor) ((GroovuinoMLBinding) this.getBinding()).getVariable(sensor2) : (Sensor) sensor2,
+                                signal2 instanceof String ? (SIGNAL) ((GroovuinoMLBinding) this.getBinding()).getVariable(signal2) : (SIGNAL) signal2,
+                                OPERATOR.and
+                            )
+                            [and: andCondition]
+                            [or: orCondition]
+                        }]
+                    }
+                    orCondition = { sensor3 ->
+                        [becomes: { signal3 ->
+                            ((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createTransition(
+                                state1 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state1) : (State) state1,
+                                state2 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state2) : (State) state2,
+                                sensor3 instanceof String ? (Sensor) ((GroovuinoMLBinding) this.getBinding()).getVariable(sensor3) : (Sensor) sensor3,
+                                signal3 instanceof String ? (SIGNAL) ((GroovuinoMLBinding) this.getBinding()).getVariable(signal3) : (SIGNAL) signal3,
+                                OPERATOR.or
+                            )
+                            [and: andCondition]
+                            [or: orCondition]
+                        }]
+                    }
+
+                    [or: orCondition,
+                    and: andCondition]
                 }]
             }]
         }]
@@ -64,7 +97,7 @@ abstract class GroovuinoMLBasescript extends Script {
                 ((GroovuinoMLBinding) this.getBinding()).getGroovuinoMLModel().createDelayer(
                         state1 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state1) : (State) state1,
                         state2 instanceof String ? (State) ((GroovuinoMLBinding) this.getBinding()).getVariable(state2) : (State) state2,
-                        n
+                        n instanceof String ? (Integer) ((GroovuinoMLBinding) this.getBinding()).getVariable(n) : (Integer) n
                 )
             }]
         }]

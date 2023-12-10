@@ -4,27 +4,25 @@ import java.util.*;
 
 import groovy.lang.Binding;
 import io.github.mosser.arduinoml.kernel.App;
-import io.github.mosser.arduinoml.kernel.behavioral.Action;
-import io.github.mosser.arduinoml.kernel.behavioral.Delayer;
-import io.github.mosser.arduinoml.kernel.behavioral.State;
-import io.github.mosser.arduinoml.kernel.behavioral.Transition;
+import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.generator.ToWiring;
 import io.github.mosser.arduinoml.kernel.generator.Visitor;
-import io.github.mosser.arduinoml.kernel.structural.Actuator;
-import io.github.mosser.arduinoml.kernel.structural.Brick;
-import io.github.mosser.arduinoml.kernel.structural.SIGNAL;
-import io.github.mosser.arduinoml.kernel.structural.Sensor;
+import io.github.mosser.arduinoml.kernel.structural.*;
 
 public class GroovuinoMLModel {
 	private List<Brick> bricks;
 	private List<State> states;
+
+	private HashMap<String, HashMap<String, Transition>> transitions;
+
 	private State initialState;
 	
 	private Binding binding;
 	
 	public GroovuinoMLModel(Binding binding) {
-		this.bricks = new ArrayList<Brick>();
-		this.states = new ArrayList<State>();
+		this.bricks = new ArrayList<>();
+		this.states = new ArrayList<>();
+		this.transitions = new HashMap<>(new HashMap<>());
 		this.binding = binding;
 	}
 	
@@ -52,13 +50,20 @@ public class GroovuinoMLModel {
 		this.states.add(state);
 		this.binding.setVariable(name, state);
 	}
-	
-	public void createTransition(State from, State to, Sensor sensor, SIGNAL value) {
-		Transition transition = new Transition();
+
+	void createTransition(State from, State to, Sensor sensor, SIGNAL value, OPERATOR operator) {
+		this.transitions.computeIfAbsent(from.getName(), k -> new HashMap<>());
+		this.transitions.get(from.getName()).computeIfAbsent(to.getName(), k -> new Transition());
+		Transition init = transitions.get(from.getName()).get(to.getName());
+		Transition transition = transitions.get(from.getName()).get(to.getName());
+		Condition condition = new Condition();
 		transition.setNext(to);
-		transition.setSensor(sensor);
-		transition.setValue(value);
-		from.setTransition(transition);
+		condition.setSensor(sensor);
+		condition.setValue(value);
+		transition.addCondition(condition);
+		if (operator != null) {
+			transition.addOp(operator);
+		}
 	}
 
 	public void createDelayer(State from, State to, Integer delay){
@@ -79,9 +84,18 @@ public class GroovuinoMLModel {
 		app.setBricks(this.bricks);
 		app.setStates(this.states);
 		app.setInitial(this.initialState);
+
+		transitions.forEach((from, to) -> to.forEach((toState, transition) -> this.states.forEach(state -> {
+			if (state.getName().equals(from)) {
+				state.addTransition(transition);
+			}
+		})));
+
 		Visitor codeGenerator = new ToWiring();
 		app.accept(codeGenerator);
-		
+
 		return codeGenerator.getResult();
 	}
+
+
 }
