@@ -1,0 +1,18 @@
+application multiCondCheck
+
+# Declaring bricks
+sensor buttonOne: 9
+sensor buttonTwo: 8
+sensor buttonThree: 7 
+actuator buzzer: 11
+
+# Declaring states
+on {
+    buzzer <= HIGH
+    buttonOne is LOW or buttonTwo is LOW or buttonThree is LOW => off
+}
+
+-> off {
+    buzzer <= LOW
+    buttonOne is HIGH and buttonTwo is HIGH or buttonThree is HIGH => on
+}
