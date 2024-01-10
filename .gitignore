@@ -10,6 +10,5 @@ embeddeds/haskell/dist
 
 *.iml
 
-externals/scenarios/
-
-embeddeds/GroovuinoML/result/
+*/scenarios/*.ino
+*/*/result/*.ino
